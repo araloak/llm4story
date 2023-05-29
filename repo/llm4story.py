@@ -170,7 +170,7 @@ def ask_why(story,new_info=[None],plots=None,depth=1,width=2,unclarities=None, q
     new_plots = []
     for index,unclarity in enumerate(plots):
         prompt_1 = 'Here is a story: \n' + story +'\n' + 'An unclarity is: \n'+ unclarity +'\n' +\
-                   'Except for pure coincidence and mental reasons, please point out '+str(width)+\
+                   'Except for pure coincidence and unknown reasons, please point out '+str(width)+\
                    ' major reasons to rationalize the story. The additional information should be short and imply the topic: '+ \
                    list2text(queries['subjects']) + "."
         #prompt_1 = 'Here is a story: \n' + story +'\n' + 'An unclarity is: \n'+ unclarity +'\n' + 'Except for pure coincidence and subject reasons, reveal me some implicit background knowledge within one or two sentencese to rationalize the story. The additional information should be short and imply the topic: '+ list2text(queries['subjects']) + "."
@@ -202,7 +202,7 @@ def add_new_info(story,picked_info):
     # reasons = [each[1] for each in new_info]
     # reasons = "\n".join(reasons)
     prompt = 'Here is a story: \n' + story +'\n' +'Here is some additional information: \n'+ picked_info + '\n'+ \
-             'Please add the above information to the story and preserve other details by repeating the unchanged parts and only modifying the necessary paragraphs. As the story is too long, to make sure all the details are well covered, only describe the first half of the story and only tell the second half when I request.'
+             'Please add the rationales expressed by the above information to the story coherently and preserve other details by repeating the unchanged parts and only modifying the necessary paragraphs. As the story is too long, to make sure all the details are well covered, only describe the first half of the story and only tell the second half when I request.'
     messages = [{"role": "user", "content": prompt}]
     for part in range(num_parts):
         index_num = random.randint(0, len(keys) - 1)
