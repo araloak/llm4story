@@ -351,14 +351,14 @@ def generate_result(simple_plot, output_file, s):
                         print(keys)
                         print(keys[0][0])
                         print(str(openai.api_key))
-                    elif 'You exceeded your current quota' in str(e) or \
-                            'That model is currently overloaded with other requests' in str(e):
+                    elif 'You exceeded your current quota' in str(e):
                         delete = open("exceeded_keys.txt", 'a+', encoding='utf-8')
                         delete.write(openai.api_key + '\n')
                         delete.close()
                         if str(openai.api_key) in keys:
                             keys.remove(str(openai.api_key))
-                    elif 'Limit: 3 / min. Please try again in 20s' in str(e):
+                    elif 'Limit: 3 / min. Please try again in 20s'  in str(e) or \
+                            'That model is currently overloaded with other requests' in str(e):
                         time.sleep(40)  # 根据报错信息，出错时自动等40秒后继续发送任务
                     flag = 0
                     if time.time() - start > 280.0:  # 若时间超过4分钟且未出结果，则重新续写文件
