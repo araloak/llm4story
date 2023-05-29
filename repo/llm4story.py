@@ -19,7 +19,10 @@ def get_best_example(all_recommendations,n_best=1):
     for id in range(len(all_recommendations['plot_recommend'])):
         overall_score = 0
         for condition in all_recommendations:
-            overall_score+= all_recommendations[condition][id][-1]
+            try:
+                overall_score += all_recommendations[condition][id][-1]
+            except Exception as e:
+                pass
         final_scores.append((id,overall_score))
     best_ids = [i[0] for i in sorted(final_scores, key=lambda x: x[1], reverse=True)]
     if n_best == 1:
@@ -64,8 +67,13 @@ def multi_corpus_recommend(entry_name,query,corpus,k=4):
     scaler = MinMaxScaler()  # 实例化
     scaler = scaler.fit(scores)  # fit，在这里本质是生成min(x)和max(x)
     scalered_scores = scaler.transform(scores)  # 通过接口导出结果
-
-    recommendation = [(i['corpus_id'],corpus[i['corpus_id']], scalered_scores[index][0]) for index,i in enumerate(hits)]
+    recommendation = []
+    # recommendation = [(i['corpus_id'],corpus[i['corpus_id']], scalered_scores[index][0]) for index,i in enumerate(hits)]
+    for index, i in enumerate(hits):
+        try:
+            recommendation.append((i['corpus_id'], corpus[i['corpus_id']], scalered_scores[index][0]))
+        except Exception as e:
+            pass
     return recommendation
 
 
@@ -85,8 +93,15 @@ def single_corpus_recommend(entry_name,query,corpus,k=4):
     scaler = MinMaxScaler()  # 实例化
     scaler = scaler.fit(scores)  # fit，在这里本质是生成min(x)和max(x)
     scalered_scores = scaler.transform(scores)  # 通过接口导出结果
+    recommendation = []
+    for index,i in enumerate(hits[0]):
+        try:
+            recommendation.append((i['corpus_id'], corpus[i['corpus_id']], scalered_scores[index][0]) )
+        except Exception as e:
+            pass
 
-    recommendation = [(i['corpus_id'],corpus[i['corpus_id']], scalered_scores[index][0]) for index,i in enumerate(hits[0])]
+    # recommendation = [(i['corpus_id'], corpus[i['corpus_id']], scalered_scores[index][0]) for index,i in enumerate(hits[0])]
+
     return recommendation
 
 def clean_split(text):
@@ -328,6 +343,7 @@ def generate_result(simple_plot, output_file, s):
                     # print(new_info)
                     flag = 1
                 except Exception as e:
+                # except IOError as e:
                     # print(openai.api_key)
                     print(str(e))
 
@@ -340,7 +356,8 @@ def generate_result(simple_plot, output_file, s):
                         delete = open("exceeded_keys.txt", 'a+', encoding='utf-8')
                         delete.write(openai.api_key + '\n')
                         delete.close()
-                        keys.remove(str(openai.api_key))
+                        if str(openai.api_key) in keys:
+                            keys.remove(str(openai.api_key))
                     elif 'Limit: 3 / min. Please try again in 20s' in str(e):
                         time.sleep(40)  # 根据报错信息，出错时自动等40秒后继续发送任务
                     flag = 0
@@ -353,6 +370,8 @@ def generate_result(simple_plot, output_file, s):
 
 
 if __name__ == '__main__':
+    for i in range(1, 51):
+        os.makedirs('outputs/res'+str(i))
     with open('../data/movie_data.json', 'r') as fi:
         movie_data = json.load(fi)
     num = 0
