@@ -3,7 +3,7 @@ import requests
 import numpy as np
 import time, random
 
-styles = ["none", "functional", "flowery","informal","formal", "realistic", "magical realism"]
+# styles = ["none", "functional", "flowery","informal","formal", "realistic", "magical realism"]
 genres = ["none", "passage","joke", "historical fiction", "literary fiction", "science fiction", "mystery", "dystopian", "horror","story"]
 subjects = ["none", "love", "strawberry", "programmer"]
 moods = ["none", "happy", "sad", "boring","moved"]
@@ -59,7 +59,8 @@ def make_prompt(examples=[], conditions={}):
         return merged
 
 
-    style, genre, subject, mood, plot = conditions['style'], conditions['genre'], conditions['subjects'],  conditions['mood'], conditions['plots']
+    genre, subject, mood, plot = conditions['genre'], conditions['subjects'],  conditions['mood'], conditions['plots']
+    # style, genre, subject, mood, plot = conditions['style'], conditions['genre'], conditions['subjects'],  conditions['mood'], conditions['plots']
     genre = merge_list(genre)
     plot = merge_list(plot)
     subject = merge_list(subject)
@@ -67,34 +68,39 @@ def make_prompt(examples=[], conditions={}):
     if len(examples) == 0:
         if mood == "none":
             if plot == "none":
-                prompt = "Write a " + style + " " + genre + " about " + subject +".\n"
+                prompt = "Write a " + genre + " about " + subject +".\n"
+                # prompt = "Write a " + style + " " + genre + " about " + subject +".\n"
             else:
-                prompt = "Write a " + style + " " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
+                prompt = "Write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
+                # prompt = "Write a " + style + " " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
         else:
             if plot == "none":
-                prompt = "Write a " + style + " " + genre + " about " + subject +" that makes the readers feel " + mood + ".\n"
+                prompt = "Write a " + genre + " about " + subject +" that makes the readers feel " + mood + ".\n"
+                # prompt = "Write a " + style + " " + genre + " about " + subject +" that makes the readers feel " + mood + ".\n"
             else:
-                prompt = "Write a " + style + " " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should contain the following plots: " + plot+"."
+                prompt = "Write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should contain the following plots: " + plot+"."
+                # prompt = "Write a " + style + " " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should contain the following plots: " + plot+"."
 
     elif len(examples) == 1:
         example = examples[0]
         example['genre'] = merge_list(example['genre'])
         if mood == "none":
             if plot == "none":
-                    prompt = "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example[
-                'mood'] + ": " +example['plot_summary']+ "\n Learn how to organize plots into a story from the given example, please write a " + style + " " + genre + " about " + subject + ".\n"
+                    prompt = "Here is an example of writing a " + example['genre']+ " about " + example[
+                    # prompt = "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example[
+                'mood'] + ": " +example['plot_summary']+ "\n Learn how to organize plots into a story from the given example, please write a " + genre + " about " + subject + ".\n"
             else:
-                prompt = "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example['subjects']+ ": " + example[
-                             'plot_summary'] + "\n Learn how to organize plots into a story from the given example, please write a " + style + " " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
+                prompt = "Here is an example of writing a " + example['genre']+ " about " + example['subjects']+ ": " + example[
+                             'plot_summary'] + "\n Learn how to organize plots into a story from the given example, please write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
         else:
             if plot == "none":
-                prompt = "Here is an example of writing a " + example['style']+ " " + example['genre']+ " that makes the readers feel " + example[
+                prompt = "Here is an example of writing a " + example['genre']+ " that makes the readers feel " + example[
                          'mood'] +". It describes the following subjects: " + example[
-                'subjects'] + ". Its main plots are:"+example['plot_summary']+ "\n Learn how to organize plots into a story from the given example, please write a " + style + " " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
+                'subjects'] + ". Its main plots are:"+example['plot_summary']+ "\n Learn how to organize plots into a story from the given example, please write a " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
             else:
-                prompt = "Here is an example of writing a " + example['style'] + " " + example['genre'] + " that makes the readers feel " + example[
+                prompt = "Here is an example of writing a " + example['genre'] + " that makes the readers feel " + example[
                          'mood'] + ". It describes the following subjects: " + example[
-                'subjects'] +". Its story is: "+example['plot_summary'] +  "\n Learn from the plots and subjects in the given example, please write a " + style + " " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
+                'subjects'] +". Its story is: "+example['plot_summary'] +  "\n Learn from the plots and subjects in the given example, please write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
 
     elif len(examples) > 1:
         few_shots = ""
@@ -102,29 +108,29 @@ def make_prompt(examples=[], conditions={}):
             if plot == "none":
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
-                    few_shots += "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example[
+                    few_shots += "Here is an example of writing a " + example['genre']+ " about " + example[
                         'subjects'] + ": " + example['plot_summary']+ "\n"
-                prompt = few_shots + "Learn how to organize plots into a story from the given examples, please write a " + style + " " + genre + " about " + subject + ".\n"
+                prompt = few_shots + "Learn how to organize plots into a story from the given examples, please write a " + genre + " about " + subject + ".\n"
             else:
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
-                    few_shots += "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example[
+                    few_shots += "Here is an example of writing a " + example['genre']+ " about " + example[
                         'subjects'] + ", with a \"" + plot+"\" plot: " + example[4]+"\n"
-                prompt = few_shots + "Learn how to organize plots into a story from the given examples, please write a " + style + " " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
+                prompt = few_shots + "Learn how to organize plots into a story from the given examples, please write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
         else:
             if plot == "none":
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
-                    few_shots += "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example[
+                    few_shots += "Here is an example of writing a " + example['genre']+ " about " + example[
                         'subjects'] + " that makes the readers feel " + example['mood']+ ": " + example['plot_summary']+ "\n"
-                prompt = few_shots + "Learn how to organize plots into a story from the given examples, combining their plots, please write a " + style + " " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
+                prompt = few_shots + "Learn how to organize plots into a story from the given examples, combining their plots, please write a " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
             else:
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
-                    few_shots += "Here is an example of writing a " + example['style']+ " " + example['genre'] + " that makes the readers feel " + example[
+                    few_shots += "Here is an example of writing a " + example['genre'] + " that makes the readers feel " + example[
                          'mood'] + ". It describes the following subjects: " +example[
                         'subjects'] + ". Its storyline is: " +example['plot_summary'] + "\n"
-                prompt = few_shots + "Learn from the plots and subjects in the given example, please write a " + style + " " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
+                prompt = few_shots + "Learn from the plots and subjects in the given example, please write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
 
 
     return prompt.replace("  ", " ").replace(" <br>",". ").replace("<br>","").replace("..",".")
@@ -156,19 +162,21 @@ def generate(prompt):
 def build_pool(path, new_path):
     current_pool = load_pool(path)
     new_pool = []
-    for style in styles:
-        for genre in genres:
-            for mood in moods:
-                for subject in subjects:
-                    for example in current_pool:
-                        try:
-                            prompt = make_prompt([example], [style, genre, subject, mood])
-                            print("Prompt: " + prompt)
-                            generation = generate(prompt)
-                            print("Generation: " + generation)
-                            new_pool.append([generation, style, genre, subject, mood])
-                        except:
-                            pass
+    #for style in styles:
+    for genre in genres:
+        for mood in moods:
+            for subject in subjects:
+                for example in current_pool:
+                    try:
+                        prompt = make_prompt([example], [genre, subject, mood])#
+                        # prompt = make_prompt([example], [style, genre, subject, mood])
+                        print("Prompt: " + prompt)
+                        generation = generate(prompt)
+                        print("Generation: " + generation)
+                        new_pool.append([generation, genre, subject, mood])
+                        # new_pool.append([generation, style, genre, subject, mood])
+                    except:
+                        pass
     pool = current_pool + new_pool
     with open(new_path, "w", encoding="utf8") as f:
         for item in pool:
@@ -194,16 +202,16 @@ def retrieve_example(pool, conditions, num_results=1):
 
     def create_vector(item):
         vector = []
-        for i in range(5):
+        for i in range(4):
+            #if i == 0:
+            #    global_list = styles
             if i == 0:
-                global_list = styles
-            elif i == 1:
                 global_list = genres
-            elif i == 2:
+            elif i == 1:
                 global_list = subjects
-            elif i == 3:
+            elif i == 2:
                 global_list = moods
-            elif i == 4:
+            elif i == 3:
                 global_list = plots
             try:
                 vector.append(global_list.index(item[i]))
@@ -224,7 +232,8 @@ def retrieve_example(pool, conditions, num_results=1):
 
 def main(path):
     pool = load_pool(path)
-    queries = {'mood':'excited, thrilled','style':'fiction,action','genre':['action'],'subjects':['adventure','death'],'plots':['he escaped from the island']}
+    queries = {'mood':'excited, thrilled','genre':['action'],'subjects':['adventure','death'],'plots':['he escaped from the island']}
+    # queries = {'mood':'excited, thrilled','style':'fiction,action','genre':['action'],'subjects':['adventure','death'],'plots':['he escaped from the island']}
 
     conditions = ["realistic", "story","society","shocked","none"]  # style, genre, subject, tone, mood
     #conditions = ["romantic", "story","gay","authentic","moved","Peter discovers Kate’s secret of being gay in a letter and later supports her through her illness until her ultimate decision to end her suffering."]  # style, genre, subject, tone, mood
