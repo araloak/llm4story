@@ -42,12 +42,12 @@ def fetch_info():
         item['plot_summary'] = df_details['plot_summary'][i]
 
         prompt1 = "Here is a story:\n" + item['plot_summary'] + "\n Answer the following question based on the above story: \n"
-        question1 = 'use one or two words to answer the writing style of this story'
-        try:
-            answers = ask_chatgpt(prompt1,question1,keys[0])
-            item['style'] = answers[0]
-        except:
-            item['style'] = None
+        # question1 = 'use one or two words to answer the writing style of this story'
+        #try:
+        #    answers = ask_chatgpt(prompt1,question1,keys[0])
+        #    item['style'] = answers[0]
+        #except:
+        #    item['style'] = None
 
         question2 = 'use one or two words to answer the moods that the readers may feel'
         try:
@@ -83,8 +83,10 @@ def continue_fetch_info():
     with open('../data/movie_data.json', 'r') as f:
         movie_data = json.load(f)
 
-    topics = ['style','mood','subjects','plots']
-    questions = ['use one or two words to answer the writing style of this story',
+    topics = ['mood','subjects','plots']
+    #topics = ['style','mood','subjects','plots']
+    questions = [
+    # questions = ['use one or two words to answer the writing style of this story',
     'use one or two words to answer the moods that the readers may feel about the story',
     'give a list of distinctive subjects this story is trying to portray',
     'summarize the above story and give an organized list of sentences, each of which describes one plot'
@@ -127,11 +129,13 @@ def fix():
     with open('../data/movie_data.json', 'r') as f:
         movie_data = json.load(f)
 
-    topics = ['style','mood','subjects','plots']
-    questions = ['use one or two words to answer the writing style of this story',
-    'use one or two words to answer the moods that the readers may feel about the story',
-    'give a list of distinctive subjects this story is trying to portray',
-    'summarize the above story and give an organized list of sentences, each of which describes one plot'
+    topics = ['mood','subjects','plots']
+
+    questions = [
+        # questions = ['use one or two words to answer the writing style of this story',
+        'use one or two words to answer the moods that the readers may feel about the story',
+        'give a list of distinctive subjects this story is trying to portray',
+        'summarize the above story and give an organized list of sentences, each of which describes one plot'
     ]
 
     while True:
