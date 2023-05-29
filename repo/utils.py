@@ -88,19 +88,19 @@ def make_prompt(examples=[], conditions={}):
             if plot == "none":
                     prompt = "Here is an example of writing a " + example['genre']+ " about " + example[
                     # prompt = "Here is an example of writing a " + example['style']+ " " + example['genre']+ " about " + example[
-                'mood'] + ": " +example['plot_summary']+ "\n Learn how to organize plots into a story from the given example, please write a " + genre + " about " + subject + ".\n"
+                'mood'] + ": " +example['plot_summary']+ "\n Learn creative and inspiring elements from the given example, please write a " + genre + " about " + subject + ".\n"
             else:
                 prompt = "Here is an example of writing a " + example['genre']+ " about " + example['subjects']+ ": " + example[
-                             'plot_summary'] + "\n Learn how to organize plots into a story from the given example, please write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
+                             'plot_summary'] + "\n Learn creative and inspiring elements from the given example, please write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
         else:
             if plot == "none":
                 prompt = "Here is an example of writing a " + example['genre']+ " that makes the readers feel " + example[
                          'mood'] +". It describes the following subjects: " + example[
-                'subjects'] + ". Its main plots are:"+example['plot_summary']+ "\n Learn how to organize plots into a story from the given example, please write a " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
+                'subjects'] + ". Its main plots are:"+example['plot_summary']+ "\n Learn creative and inspiring elements from the given example, please write a " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
             else:
                 prompt = "Here is an example of writing a " + example['genre'] + " that makes the readers feel " + example[
                          'mood'] + ". It describes the following subjects: " + example[
-                'subjects'] +". Its story is: "+example['plot_summary'] +  "\n Learn from the plots and subjects in the given example, please write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
+                'subjects'] +". Its story is: "+example['plot_summary'] +  "\n Learn creative and inspiring elements from the given example, please write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
 
     elif len(examples) > 1:
         few_shots = ""
@@ -110,27 +110,27 @@ def make_prompt(examples=[], conditions={}):
                     example['genre'] = merge_list(example['genre'])
                     few_shots += "Here is an example of writing a " + example['genre']+ " about " + example[
                         'subjects'] + ": " + example['plot_summary']+ "\n"
-                prompt = few_shots + "Learn how to organize plots into a story from the given examples, please write a " + genre + " about " + subject + ".\n"
+                prompt = few_shots + "Learn creative and inspiring elements from the given examples, please write a " + genre + " about " + subject + ".\n"
             else:
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
                     few_shots += "Here is an example of writing a " + example['genre']+ " about " + example[
                         'subjects'] + ", with a \"" + plot+"\" plot: " + example[4]+"\n"
-                prompt = few_shots + "Learn how to organize plots into a story from the given examples, please write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
+                prompt = few_shots + "Learn creative and inspiring elements from the given examples, please write a " + genre + " about " + subject + ", with a \"" + plot+"\" plot.\n"
         else:
             if plot == "none":
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
                     few_shots += "Here is an example of writing a " + example['genre']+ " about " + example[
                         'subjects'] + " that makes the readers feel " + example['mood']+ ": " + example['plot_summary']+ "\n"
-                prompt = few_shots + "Learn how to organize plots into a story from the given examples, combining their plots, please write a " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
+                prompt = few_shots + "Learn creative and inspiring elements from the given examples, combining their plots, please write a " + genre + " about " + subject + " that makes the readers feel " + mood + ".\n"
             else:
                 for example in examples:
                     example['genre'] = merge_list(example['genre'])
                     few_shots += "Here is an example of writing a " + example['genre'] + " that makes the readers feel " + example[
                          'mood'] + ". It describes the following subjects: " +example[
                         'subjects'] + ". Its storyline is: " +example['plot_summary'] + "\n"
-                prompt = few_shots + "Learn from the plots and subjects in the given example, please write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
+                prompt = few_shots + "Learn creative and inspiring elements from the given examples, please write a " + genre + " that makes the readers feel " + mood + ". It describes the following subjects: "+ subject + " . It should at least contain the following plots (the more interesting plots the better): " + plot+"."
 
 
     return prompt.replace("  ", " ").replace(" <br>",". ").replace("<br>","").replace("..",".")
