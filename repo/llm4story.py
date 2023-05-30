@@ -370,9 +370,10 @@ def generate_result(simple_plot, output_file, s):
             break
     return s
 
-def write_file(output_file, num):
+def write_file(num):
     # 不同种类信息单独保存在每个不同文件里，一行对应一个prompt
-    content = output_file.read()
+    with open("outputs/res" + str(num + 1) + "/results.txt", 'r', encoding='utf-8') as output_file:
+        content = output_file.read()
     content = content.split(
         '********************************************************************\n')
     content = content[:-1]
@@ -385,17 +386,18 @@ def write_file(output_file, num):
                 each_plot = [x.replace('\n', '') for x in
                              each.split('-----------------------------------------------')]
                 if i == 0:  # 第一行的plot去掉
+                    # print(each_plot)
                     project = each_plot[i].strip()
                     sub = project.find('Write a ')
                     project = project[sub:]
                     # print(project)
                 else:
-                    print(i)
                     project = each_plot[i].strip()  # 合并为一行
                 out.write(project + '\n')
 
 
 if __name__ == '__main__':
+
     for i in range(1, 51):
         try:
             os.makedirs('outputs/res'+str(i))
@@ -407,7 +409,7 @@ if __name__ == '__main__':
     success = 0
 
     while num < len(plot_kind):# 反复续写文件
-        print(str(num + 1) + '——' + str(success))
+        print(str(num + 1) + '——' + str(success))# 提示进行到第几个polt和第几个queries
         #pre_success = success
         add = num_kind
         while add  == num_kind:# 每次读取单个文件中完整的query个数(add)并加到success中
@@ -445,7 +447,8 @@ if __name__ == '__main__':
         for simple_plot in reddit_plot[temp:]:
             success = generate_result(simple_plot, output_file, s = success)
             print("\n********************************************************************\n")
-            write_file(output_file, num)
+            write_file(num)
             num += 1
             output_file.close()
             output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
+
