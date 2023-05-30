@@ -250,7 +250,9 @@ with open("inputs/plot.txt", 'r', encoding='utf-8') as file:# yyx change
 
 suject = ['lovers', 'cats', 'survivors']
 genre = ['Historical Fiction', 'Literary Fiction', 'Science Fiction']
-mood = ['angry', 'fearful', 'happy', 'sad']
+mood = ['fearful']
+num_kind = len(suject) * len(mood) * len(genre)
+# mood = ['angry', 'fearful', 'happy', 'sad']
 
 def generate_result(simple_plot, output_file, s):
     request = []
@@ -266,8 +268,8 @@ def generate_result(simple_plot, output_file, s):
                 count += 1
     # queries = {'mood':'excited, thrilled','style':'magical','genre':['action'],'subjects':['adventure','death']}
     # queries['plots'] = [simple_plot]
-    success = 0
-    for queries in request[s:]:  #
+
+    for queries in request[s%num_kind:]:  #
         flag = 0
         start = time.time()
         for i in range(20):  # 不成功则尝试足够次数?——次数是否合适
@@ -290,7 +292,7 @@ def generate_result(simple_plot, output_file, s):
                 output_file.write(new_story)
                 output_file.write("\n\n-----------------------------------------------\n\n")
                 output_file.write("********************************************************************\n")
-                success += 1
+                s += 1
 
                 break
             else:
@@ -326,14 +328,14 @@ def generate_result(simple_plot, output_file, s):
                     # print(story)
                     # print("\n\n-----------------------------------------------\n\n")
 
-                    story_summary, new__info = ask_why(story, new_info=[None],queries=queries)  # , plot = simple_plot
+                    story_summary, new__info = ask_why(story, new_info = [None], queries = queries)  # , plot = simple_plot
                     # print(new__info)
 
                     # print("\n\n-----------------------------------------------\n\n")
                     # for key in new_info:
                     # new_info = new_info[-4:]
                     # print(Exception)
-                    picked_info = pick_info(story, new__info,queries=queries)
+                    picked_info = pick_info(story, new__info, queries = queries)
                     # print(picked_info)
                     # print("\n\n-----------------------------------------------\n\n")
                     # new_info = []
@@ -348,9 +350,9 @@ def generate_result(simple_plot, output_file, s):
                     print(str(e))
 
                     if 'list index out of range' in str(e):
-                        print(keys)
-                        print(keys[0][0])
-                        print(str(openai.api_key))
+                        print(traceback.format_exc())
+                        # print(keys[0][0])
+                        # print(str(openai.api_key))
                     elif 'You exceeded your current quota' in str(e):
                         delete = open("exceeded_keys.txt", 'a+', encoding='utf-8')
                         delete.write(openai.api_key + '\n')
@@ -366,95 +368,84 @@ def generate_result(simple_plot, output_file, s):
         if time.time() - start > 280.0:  # 若时间超过4分钟且未出结果，则重新续写文件
             time.sleep(60)
             break
-    return success
+    return s
+
+def write_file(output_file, num):
+    # 不同种类信息单独保存在每个不同文件里，一行对应一个prompt
+    content = output_file.read()
+    content = content.split(
+        '********************************************************************\n')
+    content = content[:-1]
+    # num_queries = len(content)
+    file_list = ['prompt_before_search.txt', 'story_before_search.txt',
+                 'prompt.txt', 'story.txt', 'new_info.txt', 'picked_info.txt', 'new_story.txt']
+    for i in range(len(file_list)):  # 共分为7个文件
+        with open("outputs/res" + str(num + 1) + "/" + file_list[i], 'w', encoding='utf-8') as out:
+            for each in content:  # 每一个query
+                each_plot = [x.replace('\n', '') for x in
+                             each.split('-----------------------------------------------')]
+                if i == 0:  # 第一行的plot去掉
+                    project = each_plot[i].strip()
+                    sub = project.find('Write a ')
+                    project = project[sub:]
+                    # print(project)
+                else:
+                    print(i)
+                    project = each_plot[i].strip()  # 合并为一行
+                out.write(project + '\n')
 
 
 if __name__ == '__main__':
     for i in range(1, 51):
-        os.makedirs('outputs/res'+str(i))
+        try:
+            os.makedirs('outputs/res'+str(i))
+        except:
+            pass
     with open('../data/movie_data.json', 'r') as fi:
         movie_data = json.load(fi)
     num = 0
     success = 0
 
     while num < len(plot_kind):# 反复续写文件
-        try:
-            outputFile = open("outputs/res"+str(num+1)+"/results.txt",'r',encoding = 'utf-8')
-            output_list = outputFile.readlines()
-            line_sub = len(output_list) - 1 - output_list[::-1].index("********************************************************************\n")
+        print(str(num + 1) + '——' + str(success))
+        #pre_success = success
+        add = num_kind
+        while add  == num_kind:# 每次读取单个文件中完整的query个数(add)并加到success中
 
-            output_list = output_list[0:line_sub+1]# 保存生成好的文本
-            outputFile.close()
-            output_file = open("outputs/res"+str(num+1)+"/results.txt", 'w', encoding='utf-8')
-            pre_success = success
-            success = 0# 已经生成的plot个数
-            for line in output_list:
-                output_file.write(line)
-                if line == "********************************************************************\n":
-                    success += 1
-
-            output_file.write("\n")
-            print(str(num)+'——'+str(success))
-            if success == pre_success or success > len(suject) * len(mood) * len(genre):# 如果重复尝试某一个queries 则自动重新运行
-                if success == pre_success:
-                    print("EQUAL SUCCESS")
+            try:
+                with open("outputs/res" + str(num + 1) + "/results.txt", 'r', encoding='utf-8') as outputFile:
+                    output_list = outputFile.readlines()
+                    line_sub = len(output_list) - 1 - output_list[::-1].index(
+                        "********************************************************************\n")
+                    output_list = output_list[:line_sub+1]
+                    content = ''
+                    for line in output_list:
+                        content += line.replace('\n', '')
+                    add = content.count("********************************************************************")
+                success += add
+                if add != num_kind:
+                    output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
+                    for line in output_list:
+                        output_file.write(line)
+                    print(str(num + 1) + '——' + str(success))
                 else:
-                    print("文件超长")
+                    num += 1
+                    output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'a+', encoding='utf-8')
 
-                os.system("python llm4story.py")
+            except:# 刚开始写res(num+1)文件
+                add = 0
+                output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
 
-        except:# 刚开始写文件
-            num=0
-            output_file = open("outputs/res"+str(num+1)+"/results.txt", 'w+', encoding='utf-8')
 
-        for simple_plot in reddit_plot[num:]:
-            success = generate_result(simple_plot,output_file, s = success)
+        #########写文件########
+            #if success == pre_success:  # 如果重复尝试某一个queries 则自动重新运行
+            #    os.system("python llm4story.py")
+
+        temp = num
+        for simple_plot in reddit_plot[temp:]:
+            success = generate_result(simple_plot, output_file, s = success)
             print("\n********************************************************************\n")
-            content = output_file.read().split(
-                '********************************************************************\n')
-            if '\n' in content[-1]:
-                content = content[:-1]
-
-            file_list = ['prompt_before_search.txt', 'story_before_search.txt',
-                         'prompt.txt', 'story.txt', 'new_info.txt', 'picked_info.txt', 'new_story.txt']
-            for i in range(len(file_list)):  # 共分为7个文件
-                out = open("outputs/res" + str(num + 1) + "/" + file_list[i], 'w', encoding='utf-8')
-                for each_plot in content:
-                    each_plot = [x.replace('\n', '') for x in
-                                 each_plot.split('-----------------------------------------------')]
-                    if i == 0:  # 第一行的plot去掉
-                        project = each_plot[i].strip()
-                        sub = project.find('Write a ')
-                        project = project[sub:]
-                        # print(project)
-                    else:
-                        project = each_plot[i].strip()  # 合并为一行
-                    out.write(project + '\n')
-                out.close()
-
-        output_file.close()
-
-    # 不同种类信息单独保存在每个不同文件里，一行对应一个prompt
-    outputFile = open("outputs/res"+str(num+1)+"/results.txt", 'r', encoding='utf-8')
-    content = outputFile.read().split('********************************************************************\n')
-    if '\n' in content[-1]:
-        content = content[:-1]
-
-    file_list = ['prompt_before_search.txt', 'story_before_search.txt',
-                 'prompt.txt', 'story.txt', 'new_info.txt', 'picked_info.txt', 'new_story.txt']
-    for i in range(len(file_list)):# 共分为7个文件
-        out = open("outputs/res"+str(num+1)+"/"+file_list[i], 'w', encoding='utf-8')
-        for each_plot in content:
-            each_plot = [x.replace('\n','') for x in each_plot.split('-----------------------------------------------')]
-            if i == 0:# 第一行的plot去掉
-                project = each_plot[i].strip()
-                sub = project.find('Write a magical action')  # queries更改时这里也需要更改
-                project = project[sub:]
-                # print(project)
-            else:
-                project = each_plot[i].strip()# 合并为一行
-            out.write(project+'\n')
-        out.close()
-
-
-    outputFile.close()
+            write_file(output_file, num)
+            num += 1
+            output_file.close()
+            output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
