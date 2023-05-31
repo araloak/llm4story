@@ -362,6 +362,8 @@ def generate_result(simple_plot, output_file, s):
                     elif 'Limit: 3 / min. Please try again in 20s'  in str(e) or \
                             'That model is currently overloaded with other requests' in str(e):
                         time.sleep(40)  # 根据报错信息，出错时自动等40秒后继续发送任务
+                    elif 'The server had an error while processing your request. Sorry about that! You can retry your request'  in str(e):
+                        os.system("python llm4story.py")
                     flag = 0
                     if time.time() - start > 280.0:  # 若时间超过4分钟且未出结果，则重新续写文件
                         break
@@ -445,7 +447,7 @@ if __name__ == '__main__':
         #########写文件########
             #if success == pre_success:  # 如果重复尝试某一个queries 则自动重新运行
             #    os.system("python llm4story.py")
-        
+
         temp = num
         for simple_plot in reddit_plot[temp:]:
             success = generate_result(simple_plot, output_file, s = success)
