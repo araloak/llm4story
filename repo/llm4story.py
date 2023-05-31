@@ -222,7 +222,7 @@ def add_new_info(story,picked_info):
     return new_story
 def pick_info(story,new_info,queries = {}):
     chain_of_reasons = []
-    for index in range(3,7): #只选取最后四个info作为chain of reasons
+    for index in range(-4, 0): #只选取最后四个info作为chain of reasons
         chain_of_reason = []
         for each in list(reversed(new_info[index])):
             chain_of_reason.append(each[-1])
@@ -268,8 +268,9 @@ def generate_result(simple_plot, output_file, s):
                 count += 1
     # queries = {'mood':'excited, thrilled','style':'magical','genre':['action'],'subjects':['adventure','death']}
     # queries['plots'] = [simple_plot]
-
-    for queries in request[s%num_kind:]:  #
+    temp = s
+    # for queries in request:  #
+    for queries in request[temp % num_kind:]:  #
         flag = 0
         start = time.time()
         for i in range(20):  # 不成功则尝试足够次数?——次数是否合适
@@ -293,7 +294,6 @@ def generate_result(simple_plot, output_file, s):
                 output_file.write("\n\n-----------------------------------------------\n\n")
                 output_file.write("********************************************************************\n")
                 s += 1
-
                 break
             else:
                 try:
@@ -363,7 +363,10 @@ def generate_result(simple_plot, output_file, s):
                             'That model is currently overloaded with other requests' in str(e):
                         time.sleep(40)  # 根据报错信息，出错时自动等40秒后继续发送任务
                     elif 'The server had an error while processing your request. Sorry about that! You can retry your request'  in str(e):
+                        print('os.system("python llm4story.py"), because openai error')
                         os.system("python llm4story.py")
+                    # elif '<empty message>' in str(e):
+                    #     print(traceback.format_exc())
                     flag = 0
                     if time.time() - start > 280.0:  # 若时间超过4分钟且未出结果，则重新续写文件
                         break
@@ -378,7 +381,12 @@ def write_file(num):
         content = output_file.read()
     content = content.split(
         '********************************************************************\n')
-    #content = content[:-1]
+    if content[-1] == '':# print('content[:-1]:'+str(content[:-1])+'***')
+        content = content[-1]
+    #if len(content) < num_kind:
+    #    print('os.system("python llm4story.py"), 因为写文件时，result.txt文件下plot数量不符')
+    #    os.system("python llm4story.py")
+    # content = content[:-1]
     # num_queries = len(content)
     file_list = ['prompt_before_search.txt', 'story_before_search.txt',
                  'prompt.txt', 'story.txt', 'new_info.txt', 'picked_info.txt', 'new_story.txt']
@@ -431,7 +439,7 @@ if __name__ == '__main__':
                     add = content.count("********************************************************************")
                 success += add
                 if add != num_kind:
-                    output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
+                    output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')# success——续写a+
                     for line in output_list:
                         output_file.write(line)
                     print(str(num + 1) + '——' + str(success))
@@ -441,12 +449,8 @@ if __name__ == '__main__':
 
             except:# 刚开始写res(num+1)文件
                 add = 0
+                print(str(num + 1) + '——' + str(success))
                 output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
-
-
-        #########写文件########
-            #if success == pre_success:  # 如果重复尝试某一个queries 则自动重新运行
-            #    os.system("python llm4story.py")
 
         temp = num
         for simple_plot in reddit_plot[temp:]:
@@ -456,5 +460,6 @@ if __name__ == '__main__':
             num += 1
             output_file.close()
             output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
-
+            print('os.system("python llm4story.py"), because the polt is over.')
+            os.system("python llm4story.py")
     output_file.close()
