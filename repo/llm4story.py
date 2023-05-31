@@ -376,7 +376,7 @@ def write_file(num):
         content = output_file.read()
     content = content.split(
         '********************************************************************\n')
-    content = content[:-1]
+    #content = content[:-1]
     # num_queries = len(content)
     file_list = ['prompt_before_search.txt', 'story_before_search.txt',
                  'prompt.txt', 'story.txt', 'new_info.txt', 'picked_info.txt', 'new_story.txt']
@@ -390,10 +390,14 @@ def write_file(num):
                     project = each_plot[i].strip()
                     sub = project.find('Write a ')
                     project = project[sub:]
+                    out.write(project + '\n')
                     # print(project)
                 else:
-                    project = each_plot[i].strip()  # 合并为一行
-                out.write(project + '\n')
+                    try:
+                        project = each_plot[i].strip()  # 合并为一行
+                        out.write(project + '\n')
+                    except:
+                        pass
 
 
 if __name__ == '__main__':
@@ -407,7 +411,6 @@ if __name__ == '__main__':
         movie_data = json.load(fi)
     num = 0
     success = 0
-
     while num < len(plot_kind):# 反复续写文件
         print(str(num + 1) + '——' + str(success))# 提示进行到第几个polt和第几个queries
         #pre_success = success
@@ -442,7 +445,7 @@ if __name__ == '__main__':
         #########写文件########
             #if success == pre_success:  # 如果重复尝试某一个queries 则自动重新运行
             #    os.system("python llm4story.py")
-
+        
         temp = num
         for simple_plot in reddit_plot[temp:]:
             success = generate_result(simple_plot, output_file, s = success)
@@ -452,3 +455,4 @@ if __name__ == '__main__':
             output_file.close()
             output_file = open("outputs/res" + str(num + 1) + "/results.txt", 'w+', encoding='utf-8')
 
+    output_file.close()
